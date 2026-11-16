@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod console;
 mod syscall;
 
 use core::panic::PanicInfo;
@@ -13,6 +14,7 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 extern "C" fn _start() -> ! {
+    println!("Hello, world!");
     sys_exit(9);
     loop {}
 }
