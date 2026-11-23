@@ -1,0 +1,133 @@
+=== Environment ===
+NAME="openEuler"
+VERSION="24.03 (LTS-SP4)"
+ID="openEuler"
+VERSION_ID="24.03"
+PRETTY_NAME="openEuler 24.03 (LTS-SP4)"
+ANSI_COLOR="0;31"
+
+rustc 1.97.0-nightly (f964de49b 2026-05-07)
+cargo 1.97.0-nightly (4f9b52075 2026-05-01)
+QEMU emulator version 11.0.0
+Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
+369088f8d86617374b1cb9ca785be7224b7cf78fc2043a2b3a354c90d54f3334  bootloader/opensbi.bin
+=== Entry before custom linker ===
+   Compiling os v0.1.0 (/tmp/os-lab2-688ee1f32c6141e1b70aa57d17bc0aa4/os_before)
+    Finished `release` profile [optimized] target(s) in 0.31s
+
+File: target/riscv64gc-unknown-none-elf/release/os
+Format: elf64-littleriscv
+Arch: riscv64
+AddressSize: 64bit
+LoadName: <Not found>
+ElfHeader {
+  Ident {
+    Magic: (7F 45 4C 46)
+    Class: 64-bit (0x2)
+    DataEncoding: LittleEndian (0x1)
+    FileVersion: 1
+    OS/ABI: SystemV (0x0)
+    ABIVersion: 0
+    Unused: (00 00 00 00 00 00 00)
+  }
+  Type: Executable (0x2)
+  Machine: EM_RISCV (0xF3)
+  Version: 1
+  Entry: 0x11158
+  ProgramHeaderOffset: 0x40
+  SectionHeaderOffset: 0x360
+  Flags [ (0x5)
+    EF_RISCV_FLOAT_ABI_DOUBLE (0x4)
+    EF_RISCV_RVC (0x1)
+  ]
+  HeaderSize: 64
+  ProgramHeaderEntrySize: 56
+  ProgramHeaderCount: 5
+  SectionHeaderEntrySize: 64
+  SectionHeaderCount: 7
+  StringTableSectionIndex: 5
+}
+=== Build final kernel ===
+cargo build --release
+   Compiling os v0.1.0 (/tmp/os-lab2-688ee1f32c6141e1b70aa57d17bc0aa4/os)
+    Finished `release` profile [optimized] target(s) in 0.18s
+rust-objcopy --binary-architecture=riscv64 target/riscv64gc-unknown-none-elf/release/os --strip-all -O binary target/riscv64gc-unknown-none-elf/release/os.bin
+rust-readobj -h target/riscv64gc-unknown-none-elf/release/os
+
+File: target/riscv64gc-unknown-none-elf/release/os
+Format: elf64-littleriscv
+Arch: riscv64
+AddressSize: 64bit
+LoadName: <Not found>
+ElfHeader {
+  Ident {
+    Magic: (7F 45 4C 46)
+    Class: 64-bit (0x2)
+    DataEncoding: LittleEndian (0x1)
+    FileVersion: 1
+    OS/ABI: SystemV (0x0)
+    ABIVersion: 0
+    Unused: (00 00 00 00 00 00 00)
+  }
+  Type: Executable (0x2)
+  Machine: EM_RISCV (0xF3)
+  Version: 1
+  Entry: 0x80200000
+  ProgramHeaderOffset: 0x40
+  SectionHeaderOffset: 0x11058
+  Flags [ (0x5)
+    EF_RISCV_FLOAT_ABI_DOUBLE (0x4)
+    EF_RISCV_RVC (0x1)
+  ]
+  HeaderSize: 64
+  ProgramHeaderEntrySize: 56
+  ProgramHeaderCount: 5
+  SectionHeaderEntrySize: 64
+  SectionHeaderCount: 9
+  StringTableSectionIndex: 7
+}
+  Entry: 0x80200000
+=== Run final kernel ===
+cargo build --release
+    Finished `release` profile [optimized] target(s) in 0.00s
+rust-objcopy --binary-architecture=riscv64 target/riscv64gc-unknown-none-elf/release/os --strip-all -O binary target/riscv64gc-unknown-none-elf/release/os.bin
+qemu-system-riscv64 -machine virt -nographic -bios ../bootloader/opensbi.bin -device loader,file=target/riscv64gc-unknown-none-elf/release/os.bin,addr=0x80200000
+
+OpenSBI v0.6
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name          : QEMU Virt Machine
+Platform HART Features : RV64ACDFHIMSU
+Platform Max HARTs     : 8
+Current Hart           : 0
+Firmware Base          : 0x80000000
+Firmware Size          : 120 KB
+Runtime SBI Version    : 0.2
+
+MIDELEG : 0x0000000000001666
+MEDELEG : 0x0000000000b0b509
+PMP0    : 0x0000000080000000-0x000000008001ffff (A)
+PMP1    : 0x0000000000000000-0xffffffffffffffff (A,R,W,X)
+Hello, world!
+.text [0x80200000, 0x80201000)
+.rodata [0x80201000, 0x80202000)
+.data [0x80202000, 0x80202000)
+boot_stack [0x80202000, 0x80212000)
+.bss [0x80212000, 0x80212000)
+Hello, world!
+Panicked at src/main.rs:63 Shutdown machine!
+QEMU_EXIT_STATUS=0
+Panicked at src/main.rs:63 Shutdown machine!
+.text [0x80200000, 0x80201000)
+.rodata [0x80201000, 0x80202000)
+.data [0x80202000, 0x80202000)
+boot_stack [0x80202000, 0x80212000)
+.bss [0x80212000, 0x80212000)
+=== PASS: kernel output and shutdown verified ===
